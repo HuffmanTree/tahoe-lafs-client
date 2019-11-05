@@ -1,0 +1,45 @@
+{
+  "name": "tahoe-lafs-client",
+  "version": "1.2.0",
+  "description": "Javascript client for the Tahoe-LAFS Web API",
+  "main": "./dist/index.js",
+  "types": "./src/index.ts",
+  "scripts": {
+    "test": "mocha -r ts-node/register test/**/*-test.ts",
+    "build": "tsc -p .",
+    "typedoc_gen": "typedoc --out doc/",
+    "typedoc_build": "npm run typedoc_gen && zip -r doc/tsdoc.zip doc/",
+    "typedoc_serve": "npm run typedoc_gen && http-server doc/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/HuffmanTree/tahoe-lafs-client.git"
+  },
+  "keywords": [
+    "Tahoe-LAFS",
+    "Javascript",
+    "API"
+  ],
+  "author": "François Guérin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HuffmanTree/tahoe-lafs-client/issues"
+  },
+  "homepage": "https://github.com/HuffmanTree/tahoe-lafs-client#readme",
+  "dependencies": {
+    "@types/form-data": "^2.5.0",
+    "@types/node": "^12.11.2",
+    "@types/node-fetch": "^2.5.2",
+    "form-data": "^2.5.1",
+    "node-fetch": "^2.6.0",
+    "tslib": "^1.10.0"
+  },
+  "devDependencies": {
+    "@types/mocha": "^5.2.7",
+    "chai": "^4.2.0",
+    "jsdoc": "^3.6.3",
+    "mocha": "^6.1.4",
+    "ts-node": "^8.4.1",
+    "typedoc": "^0.15.0"
+  }
+}
