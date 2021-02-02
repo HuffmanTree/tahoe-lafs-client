@@ -402,11 +402,21 @@ export enum Format {
 }
 
 export type FilecapInfo = {
+  rw_uri?: string,
   ro_uri: string,
-  verify_uri: string,
-  size: number,
-  mutable: boolean,
-  format: string
+  verify_uri?: string,
+  size?: number,
+  mutable?: boolean,
+  format?: Format
+};
+
+export type DircapInfo = {
+  rw_uri?: string,
+  ro_uri: string,
+  verify_uri?: string,
+  mutable?: boolean,
+  format?: Format,
+  children?: Record<string, [string, FilecapInfo | DircapInfo]>
 };
 
 /**
@@ -429,7 +439,7 @@ export default class TahoeLAFSClient {
     return this._client.get(url);
   }
 
-  readFilecapInfo(filecap: string): Promise<AxiosResponse<[string, FilecapInfo]>> {
+  readCapabilityInfo(filecap: string): Promise<AxiosResponse<[string, FilecapInfo | DircapInfo]>> {
     const url = `/uri/${filecap}?t=json`;
 
     return this._client.get(url);
@@ -457,6 +467,31 @@ export default class TahoeLAFSClient {
     form.append('file', content);
 
     return this._client.put(url, form);
+  }
+
+  uploadFilename(dircap: string, filename: string, content: string, format: Format = Format.CHK, subdirs?: Array<string>): Promise<AxiosResponse<string>> {
+    const url = `/uri/${buildPath(dircap, subdirs, filename)}?format=${format}`;
+    const form = new FormData();
+
+    form.append('file', content);
+
+    return this._client.put(url, form);
+  }
+
+  createDirectory(format: Format.SDMF | Format.MDMF = Format.SDMF): Promise<AxiosResponse<string>> {
+    const url = `/uri?t=mkdir&format=${format}`;
+
+    return this._client.post(url);
+  }
+
+  createImmutableDirectory(children: Record<string, [string, FilecapInfo | DircapInfo]>): Promise<AxiosResponse<string>> {
+    const url = '/uri?t=mkdir-immutable';
+
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+
+    return this._client.post(url, children, { headers });
   }
 
 }
