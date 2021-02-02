@@ -355,7 +355,7 @@ class TahoeLAFSClient {
         const url = `/uri/${filecap}`;
         return this._client.get(url);
     }
-    readFilecapInfo(filecap) {
+    readCapabilityInfo(filecap) {
         const url = `/uri/${filecap}?t=json`;
         return this._client.get(url);
     }
@@ -374,6 +374,23 @@ class TahoeLAFSClient {
         const form = new form_data_1.default();
         form.append('file', content);
         return this._client.put(url, form);
+    }
+    uploadFilename(dircap, filename, content, format = Format.CHK, subdirs) {
+        const url = `/uri/${utils_1.buildPath(dircap, subdirs, filename)}?format=${format}`;
+        const form = new form_data_1.default();
+        form.append('file', content);
+        return this._client.put(url, form);
+    }
+    createDirectory(format = Format.SDMF) {
+        const url = `/uri?t=mkdir&format=${format}`;
+        return this._client.post(url);
+    }
+    createImmutableDirectory(children) {
+        const url = '/uri?t=mkdir-immutable';
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        return this._client.post(url, children, { headers });
     }
 }
 exports.default = TahoeLAFSClient;
