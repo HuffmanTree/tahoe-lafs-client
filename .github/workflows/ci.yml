@@ -29,6 +29,7 @@ jobs:
       - name: Use Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
-          node-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python-version }}
+      - run: npm install
       - run: npm run build --if-present
       - run: npm test
