@@ -9,7 +9,7 @@ import TahoeLAFSClient, { Format, FilecapInfo, DircapInfo } from '../src/index';
 
 const http = axios.create({ baseURL: 'http://localhost:4567' });
 
-describe('TahoeLAFSClient (CHK)', function () {
+describe('TahoeLAFSClient (MDMF)', function () {
 
   const client = new TahoeLAFSClient({ baseURL: 'http://localhost:4567' });
   const content1 = 'hello world 1';
@@ -17,19 +17,19 @@ describe('TahoeLAFSClient (CHK)', function () {
 
   form1.append('file1', content1);
 
-  let filecapCHK: string;
-  let dircapCHK: string;
+  let filecapMDMF: string;
+  let dircapMDMF: string;
 
   before(function () {
 
-    return http.put<string>(`/uri?format=${Format.CHK}`, form1)
+    return http.put<string>(`/uri?format=${Format.MDMF}`, form1)
       .then(response => {
-	filecapCHK = response.data;
+	filecapMDMF = response.data;
 
-	return http.post<string>('/uri?t=mkdir-immutable', { 'foo.txt': ['filenode', { ro_uri: filecapCHK }] })
+	return http.post<string>(`/uri?t=mkdir-with-children&format=${Format.MDMF}`, { 'foo.txt': ['filenode', { ro_uri: filecapMDMF }] })
       })
       .then(response => {
-	dircapCHK = response.data;
+	dircapMDMF = response.data;
 
 	return Promise.resolve();
       });
@@ -40,7 +40,7 @@ describe('TahoeLAFSClient (CHK)', function () {
 
     it('should successfully read an existing filecap content', async function () {
 
-      const response = await client.readFilecap(filecapCHK);
+      const response = await client.readFilecap(filecapMDMF);
 
       expect(response)
 	.to.have.property('status').and
@@ -49,15 +49,6 @@ describe('TahoeLAFSClient (CHK)', function () {
       expect(response)
 	.to.have.property('data').and
 	.to.be.a('string');
-
-    });
-
-    it('should fail reading content of a non existing filecap', async function () {
-
-      const filecap = 'URI:CHK:ihrbeov7lbvoduupd4qblysj7a:bg5agsdt62jb34hxvxmdsbza6do64f4fg5anxxod2buttbo6udzq:3:10:28733';
-      const promise = client.readFilecap(filecap);
-
-      await expect(promise).to.be.rejectedWith(/^Request failed with status code 410$/);
 
     });
 
@@ -76,7 +67,7 @@ describe('TahoeLAFSClient (CHK)', function () {
 
     it('should successfully read an existing filename content', async function () {
 
-      const response = await client.readFilename(dircapCHK, 'foo.txt');
+      const response = await client.readFilename(dircapMDMF, 'foo.txt');
 
       expect(response)
 	.to.have.property('status').and
@@ -90,7 +81,7 @@ describe('TahoeLAFSClient (CHK)', function () {
 
     it('should fail reading content of a non existing filename', async function () {
 
-      const promise = client.readFilename(dircapCHK, 'bar.txt');
+      const promise = client.readFilename(dircapMDMF, 'bar.txt');
 
       await expect(promise).to.be.rejectedWith(/^Request failed with status code 404$/);
 
@@ -102,7 +93,7 @@ describe('TahoeLAFSClient (CHK)', function () {
 
     it('should successfully get info on a filecap', async function () {
 
-      const response = await client.readCapabilityInfo(filecapCHK);
+      const response = await client.readCapabilityInfo(filecapMDMF);
 
       expect(response)
 	.to.have.property('status').and
@@ -121,15 +112,17 @@ describe('TahoeLAFSClient (CHK)', function () {
       expect(info)
 	.to.be.an('object');
       expect(info)
-	.to.not.have.property('rw_uri');
+	.to.have.property('rw_uri').and
+	.to.be.a('string').and.
+	to.startWith('URI:MDMF:');
       expect(info)
 	.to.have.property('ro_uri').and
 	.to.be.a('string').and
-	.to.startWith('URI:CHK:');
+	.to.startWith('URI:MDMF-RO:');
       expect(info)
 	.to.have.property('verify_uri').and
 	.to.be.a('string').and
-	.to.startWith('URI:CHK-Verifier:');
+	.to.startWith('URI:MDMF-Verifier:');
       expect(info)
 	.to.have.property('size').and
 	.to.be.a('number').and
@@ -137,17 +130,17 @@ describe('TahoeLAFSClient (CHK)', function () {
       expect(info)
 	.to.have.property('mutable').and
 	.to.be.a('boolean').and
-	.to.be.false;
+	.to.be.true;
       expect(info)
 	.to.have.property('format').and
 	.to.be.a('string').and
-	.to.equal(Format.CHK);
+	.to.equal(Format.MDMF);
 
     });
 
     it('should successfully get info on a dircap', async function () {
 
-      const response = await client.readCapabilityInfo(dircapCHK);
+      const response = await client.readCapabilityInfo(dircapMDMF);
 
       expect(response)
 	.to.have.property('status').and
@@ -166,19 +159,21 @@ describe('TahoeLAFSClient (CHK)', function () {
       expect(info)
 	.to.be.an('object');
       expect(info)
-	.to.not.have.property('rw_uri');
+	.to.have.property('rw_uri')
+	.and.to.be.a('string').and
+	.to.startWith('URI:DIR2:');
       expect(info)
 	.to.have.property('ro_uri').and
 	.to.be.a('string').and
-	.to.startWith('URI:DIR2-CHK:');
+	.to.startWith('URI:DIR2-RO:');
       expect(info)
 	.to.have.property('verify_uri').and
 	.to.be.a('string').and
-	.to.startWith('URI:DIR2-CHK-Verifier:');
+	.to.startWith('URI:DIR2-Verifier:');
       expect(info)
 	.to.have.property('mutable').and
 	.to.be.a('boolean').and
-	.to.be.false;
+	.to.be.true;
       expect(info)
 	.to.have.property('children').and
 	.to.be.an('object');
@@ -216,7 +211,60 @@ describe('TahoeLAFSClient (CHK)', function () {
 
     it('should successfully upload a file with no filesystem', async function () {
 
-      const response = await client.uploadFile(content1, Format.CHK);
+      const response = await client.uploadFile(content1, Format.MDMF);
+
+      expect(response)
+	.to.have.property('status').and
+	.to.be.a('number').and
+	.to.equal(200);
+      expect(response)
+	.to.have.property('data').and
+	.to.be.a('string').and
+	.to.startWith('URI:MDMF:');
+
+    });
+
+  });
+
+  describe('uploadFilecap', function () {
+
+    it('should successfully upload a filecap', async function () {
+
+      const response = await client.uploadFilecap(filecapMDMF, content1, Format.MDMF);
+
+      expect(response)
+	.to.have.property('status').and
+	.to.be.a('number').and
+	.to.equal(200);
+      expect(response)
+	.to.have.property('data').and
+	.to.be.a('string').and
+	.to.startWith('URI:MDMF:');
+
+    });
+
+  });
+
+  describe('uploadFilename', function () {
+
+    it('should successfully upload an immutable file on a mutable filesystem', async function () {
+
+      const response = await client.uploadFilename(dircapMDMF, 'hello.txt', content1, Format.CHK);
+
+      expect(response)
+	.to.have.property('status').and
+	.to.be.a('number').and
+	.to.equal(201);
+      expect(response)
+	.to.have.property('data').and
+	.to.be.a('string').and
+	.to.startWith('URI:CHK:');
+
+    });
+
+    it('should successfully update (discard and replace) an immutable file on a mutable filesystem', async function () {
+
+      const response = await client.uploadFilename(dircapMDMF, 'hello.txt', content1, Format.CHK);
 
       expect(response)
 	.to.have.property('status').and
@@ -229,37 +277,39 @@ describe('TahoeLAFSClient (CHK)', function () {
 
     });
 
-  });
+    it('should successfully upload an mutable file on a mutable filesystem (1/2)', async function () {
 
-  describe('uploadFilecap', function () {
+      const response = await client.uploadFilename(dircapMDMF, 'world.txt', content1, Format.SDMF);
 
-    it('should fail uploading a filecap', async function () {
-
-      const promise = client.uploadFilecap(filecapCHK, content1, Format.CHK);
-
-      await expect(promise).to.be.rejectedWith(/^Request failed with status code 500$/);
-
-    });
-
-  });
-
-  describe('uploadFilename', function () {
-
-    it('should fail uploading a file on a immutable filesystem', async function () {
-
-      const promise = client.uploadFilename(dircapCHK, 'hello.txt', content1, Format.CHK);
-
-      await expect(promise).to.be.rejectedWith(/^Request failed with status code 500$/);
+      expect(response)
+	.to.have.property('status').and
+	.to.be.a('number').and
+	.to.equal(201);
+      expect(response)
+	.to.have.property('data').and
+	.to.be.a('string').and
+	.to.startWith('URI:SSK:');
 
     });
 
-  });
+    it('should successfully upload an mutable file on a mutable filesystem (2/2)', async function () {
 
-  describe('createImmutableDirectory', function () {
+      const response = await client.uploadFilename(dircapMDMF, '!!.txt', content1, Format.MDMF);
 
-    it('should successfully create an empty directory', async function () {
+      expect(response)
+	.to.have.property('status').and
+	.to.be.a('number').and
+	.to.equal(201);
+      expect(response)
+	.to.have.property('data').and
+	.to.be.a('string').and
+	.to.startWith('URI:MDMF:');
 
-      const response = await client.createImmutableDirectory();
+    });
+
+    it('should successfully update a mutable file on a mutable filesystem (1/2)', async function () {
+
+      const response = await client.uploadFilename(dircapMDMF, 'world.txt', content1, Format.SDMF);
 
       expect(response)
 	.to.have.property('status').and
@@ -268,15 +318,49 @@ describe('TahoeLAFSClient (CHK)', function () {
       expect(response)
 	.to.have.property('data').and
 	.to.be.a('string').and
-	.to.startWith('URI:DIR2-LIT:');
+	.to.startWith('URI:SSK:');
+
+    });
+
+    it('should successfully update a mutable file on a mutable filesystem (2/2)', async function () {
+
+      const response = await client.uploadFilename(dircapMDMF, '!!.txt', content1, Format.MDMF);
+
+      expect(response)
+	.to.have.property('status').and
+	.to.be.a('number').and
+	.to.equal(200);
+      expect(response)
+	.to.have.property('data').and
+	.to.be.a('string').and
+	.to.startWith('URI:MDMF:');
+
+    });
+
+  });
+
+  describe('createDirectory', function () {
+
+    it('should successfully create an empty directory', async function () {
+
+      const response = await client.createDirectory(Format.MDMF);
+
+      expect(response)
+	.to.have.property('status').and
+	.to.be.a('number').and
+	.to.equal(200);
+      expect(response)
+	.to.have.property('data').and
+	.to.be.a('string').and
+	.to.startWith('URI:DIR2:');
 
     });
 
     it('should successfully create a directory with contents', async function () {
 
-      const filenode: [string, FilecapInfo] = ['filenode', { ro_uri: filecapCHK }];
-      const dirnode: [string, DircapInfo] = ['dirnode', { ro_uri: dircapCHK }];
-      const response = await client.createImmutableDirectory({
+      const filenode: [string, FilecapInfo] = ['filenode', { ro_uri: filecapMDMF }];
+      const dirnode: [string, DircapInfo] = ['dirnode', { ro_uri: dircapMDMF }];
+      const response = await client.createDirectory(Format.MDMF, {
 	'file1.txt': filenode,
 	'folder1': dirnode
       });
@@ -288,7 +372,7 @@ describe('TahoeLAFSClient (CHK)', function () {
       expect(response)
 	.to.have.property('data').and
 	.to.be.a('string').and
-	.to.startWith('URI:DIR2-CHK:');
+	.to.startWith('URI:DIR2:');
 
     });
 
