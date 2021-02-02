@@ -42,7 +42,9 @@ jobs:
         run: tahoe start .node
       - name: Restart introducer
         run: tahoe restart .introducer
-      - run: cat .node/tahoe.cfg
-      - run: npm install
-      - run: npm run build --if-present
-      - run: npm test
+      - name: Install NPM dependencies
+        run: npm install
+      - name: Build NPM package
+        run: npm run build --if-present
+      - name: Test NPM package
+        run: npm test
