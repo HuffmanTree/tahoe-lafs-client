@@ -37,7 +37,7 @@ jobs:
       - name: Start introducer
         run: tahoe start .introducer
       - name: Create node
-        run: tahoe create-node -location=tcp:127.0.0.1:7777 --port=tcp:7777 --webport=tcp:4567:interface=127.0.0.1 --shares-happy=1 --shares-needed=1 --shares-total=1 --introducer=`cat .introducer/private/introducer.furl` .node
+        run: tahoe create-node --location=tcp:127.0.0.1:7777 --port=tcp:7777 --webport=tcp:4567:interface=127.0.0.1 --shares-happy=1 --shares-needed=1 --shares-total=1 --introducer=`cat .introducer/private/introducer.furl` .node
       - name: Start node
         run: tahoe start .node
       - name: Restart introducer
