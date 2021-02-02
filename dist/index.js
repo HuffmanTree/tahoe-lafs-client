@@ -3,6 +3,7 @@
 //  * @module tahoe-lafs-client
 //  */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Format = void 0;
 const tslib_1 = require("tslib");
 // import fs from 'fs';
 // import FormData from 'form-data';
@@ -334,8 +335,15 @@ const tslib_1 = require("tslib");
 /**
  * @module tahoe-lafs-client
  */
+const form_data_1 = tslib_1.__importDefault(require("form-data"));
 const axios_1 = tslib_1.__importDefault(require("axios"));
 const utils_1 = require("./utils");
+var Format;
+(function (Format) {
+    Format["CHK"] = "CHK";
+    Format["MDMF"] = "MDMF";
+    Format["SDMF"] = "SDMF";
+})(Format = exports.Format || (exports.Format = {}));
 /**
  * Represents a client for a Tahoe-LAFS node
  */
@@ -354,6 +362,18 @@ class TahoeLAFSClient {
     readFilename(dircap, filename, subdirs) {
         const url = `/uri/${utils_1.buildPath(dircap, subdirs, filename)}`;
         return this._client.get(url);
+    }
+    uploadFile(content, format = Format.CHK) {
+        const url = `/uri?format=${format}`;
+        const form = new form_data_1.default();
+        form.append('file', content);
+        return this._client.put(url, form);
+    }
+    uploadFilecap(filecap, content, format = Format.CHK) {
+        const url = `/uri/${filecap}?format=${format}`;
+        const form = new form_data_1.default();
+        form.append('file', content);
+        return this._client.put(url, form);
     }
 }
 exports.default = TahoeLAFSClient;
