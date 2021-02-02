@@ -33,11 +33,11 @@ jobs:
       - name: Install TahoeLAFS
         run: python -m pip install tahoe-lafs==1.12.1
       - name: Create introducer
-        run: tahoe create-introducer --hostname=localhost:7777 .introducer
+        run: tahoe create-introducer --hostname=tcp:7777:interface=127.0.0.1 .introducer
       - name: Start introducer
         run: tahoe start .introducer
       - name: Create node
-        run: tahoe create-node --hostname=localhost:6666 --webport=tcp:4567:interface=127.0.0.1 --shares-happy=1 --shares-needed=1 --shares-total=1 --introducer=`cat .introducer/private/introducer.furl` .node
+        run: tahoe create-node --hostname=tcp:6666:interface=127.0.0.1 --webport=tcp:4567:interface=127.0.0.1 --shares-happy=1 --shares-needed=1 --shares-total=1 --introducer=`cat .introducer/private/introducer.furl` .node
       - name: Start node
         run: tahoe start .node
       - run: cat .node/tahoe.cfg
