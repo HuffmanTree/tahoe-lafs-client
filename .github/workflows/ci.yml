@@ -30,6 +30,8 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install TahoeLAFS
+        run: python -m pip install tahoe-lafs=1.12.1
       - run: npm install
       - run: npm run build --if-present
       - run: npm test
