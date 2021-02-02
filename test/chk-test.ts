@@ -5,7 +5,7 @@ import { default as chai, expect } from 'chai';
 chai.use(require('chai-string'));
 chai.use(require('chai-as-promised'));
 
-import TahoeLAFSClient, { Format } from '../src/index';
+import TahoeLAFSClient, { Format, FilecapInfo, DircapInfo } from '../src/index';
 
 const http = axios.create({ baseURL: 'http://localhost:4567' });
 
@@ -18,15 +18,21 @@ describe('TahoeLAFSClient (CHK)', function () {
   form1.append('file1', content1);
 
   let filecapCHK: string;
+  let dircapCHK: string;
 
-  before(function (done) {
+  before(function () {
 
-    http.put<string>(`/uri?format=${Format.CHK}`, form1)
+    return http.put<string>(`/uri?format=${Format.CHK}`, form1)
       .then(response => {
 	filecapCHK = response.data;
 
-	done();
+	return http.post<string>('/uri?t=mkdir-immutable', { 'foo.txt': ['filenode', { ro_uri: filecapCHK }] })
       })
+      .then(response => {
+	dircapCHK = response.data;
+
+	return Promise.resolve();
+      });
 
   });
 
@@ -66,11 +72,11 @@ describe('TahoeLAFSClient (CHK)', function () {
 
   });
 
-  describe('readFilecapInfo', function () {
+  describe('readCapabilityInfo', function () {
 
     it('should successfully get info on a filecap', async function () {
 
-      const response = await client.readFilecapInfo(filecapCHK);
+      const response = await client.readCapabilityInfo(filecapCHK);
 
       expect(response)
 	.to.have.property('status').and
@@ -88,6 +94,8 @@ describe('TahoeLAFSClient (CHK)', function () {
 	to.equal('filenode');
       expect(info)
 	.to.be.an('object');
+      expect(info)
+	.to.not.have.property('rw_uri');
       expect(info)
 	.to.have.property('ro_uri').and
 	.to.be.a('string').and
@@ -111,10 +119,50 @@ describe('TahoeLAFSClient (CHK)', function () {
 
     });
 
-    it('should fail getting info on an invalid filecap', async function() {
+    it('should successfully get info on a dircap', async function () {
 
-      const filecap = 'wrong_filecap';
-      const response = await client.readFilecapInfo(filecap);
+      const response = await client.readCapabilityInfo(dircapCHK);
+
+      expect(response)
+	.to.have.property('status').and
+	.to.be.a('number').and
+	.to.equal(200);
+      expect(response)
+	.to.have.property('data').and
+	.to.be.instanceOf(Array).and
+	.to.have.lengthOf(2);
+
+      const [flag, info] = response.data;
+
+      expect(flag)
+	.to.be.a('string').and.
+	to.equal('dirnode');
+      expect(info)
+	.to.be.an('object');
+      expect(info)
+	.to.not.have.property('rw_uri');
+      expect(info)
+	.to.have.property('ro_uri').and
+	.to.be.a('string').and
+	.to.startWith('URI:DIR2-CHK:');
+      expect(info)
+	.to.have.property('verify_uri').and
+	.to.be.a('string').and
+	.to.startWith('URI:DIR2-CHK-Verifier:');
+      expect(info)
+	.to.have.property('mutable').and
+	.to.be.a('boolean').and
+	.to.be.false;
+      expect(info)
+	.to.have.property('children').and
+	.to.be.an('object');
+
+    });
+
+    it('should fail getting info on an invalid capability', async function() {
+
+      const capability = 'wrong_capability';
+      const response = await client.readCapabilityInfo(capability);
 
       expect(response)
 	.to.have.property('status').and
@@ -159,11 +207,35 @@ describe('TahoeLAFSClient (CHK)', function () {
 
   describe('uploadFilecap', function () {
 
-    it('should fail uploading a filecap for an immutable file', async function () {
+    it('should fail uploading a filecap', async function () {
 
       const promise = client.uploadFilecap(filecapCHK, content1);
 
       await expect(promise).to.be.rejectedWith(/^Request failed with status code 500$/);
+
+    });
+
+  });
+
+  describe('createImmutableDirectory', function () {
+
+    it('should successfully create a directory with contents', async function () {
+
+      const filenode: [string, FilecapInfo] = ['filenode', { ro_uri: filecapCHK }];
+      const dirnode: [string, DircapInfo] = ['dirnode', { ro_uri: dircapCHK }];
+      const response = await client.createImmutableDirectory({
+	'file1.txt': filenode,
+	'folder1': dirnode
+      });
+
+      expect(response)
+	.to.have.property('status').and
+	.to.be.a('number').and
+	.to.equal(200);
+      expect(response)
+	.to.have.property('data').and
+	.to.be.a('string').and
+	.to.startWith('URI:DIR2-CHK:');
 
     });
 
