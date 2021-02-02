@@ -1,15 +1,15 @@
 {
   "name": "tahoe-lafs-client",
-  "version": "1.5.0",
+  "version": "2.0.0-beta.0",
   "description": "Javascript client for the Tahoe-LAFS Web API written in Typescript",
   "main": "./dist/index.js",
   "types": "./src/index.ts",
   "scripts": {
-    "test": "mocha -r ts-node/register test/**/*-test.ts",
-    "build": "tsc -p .",
-    "typedoc_gen": "typedoc --out doc/",
-    "typedoc_build": "npm run typedoc_gen && zip -r doc/tsdoc.zip doc/",
-    "typedoc_serve": "npm run typedoc_gen && http-server doc/"
+    "test": "mocha -r ts-node/register -t 300000 test/**/*-test.ts",
+    "build": "rm -rf dist && tsc -p .",
+    "typedoc:gen": "typedoc --out doc/",
+    "typedoc:build": "npm run typedoc:gen && zip -r doc/tsdoc.zip doc/",
+    "typedoc:serve": "npm run typedoc:gen && http-server doc/"
   },
   "repository": {
     "type": "git",
@@ -28,20 +28,21 @@
   },
   "homepage": "https://github.com/HuffmanTree/tahoe-lafs-client#readme",
   "dependencies": {
-    "@types/form-data": "^2.5.0",
-    "@types/node": "^12.11.2",
-    "@types/node-fetch": "^2.5.2",
-    "form-data": "^2.5.1",
-    "node-fetch": "^2.6.0",
-    "tslib": "^1.10.0"
+    "axios": "^0.21.1",
+    "form-data": "^3.0.0",
+    "tslib": "^2.1.0"
   },
   "devDependencies": {
-    "@types/mocha": "^5.2.7",
+    "@types/chai": "^4.2.14",
+    "@types/chai-as-promised": "^7.1.3",
+    "@types/chai-string": "^1.4.2",
+    "@types/mocha": "^8.2.0",
+    "@types/node": "^14.14.22",
     "chai": "^4.2.0",
-    "js-yaml": ">=3.13.1",
-    "lodash": ">=4.17.13",
-    "mocha": "^6.1.4",
-    "ts-node": "^8.4.1",
-    "typedoc": "^0.15.0"
+    "chai-as-promised": "^7.1.1",
+    "chai-string": "^1.5.0",
+    "mocha": "^8.2.1",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
   }
 }
