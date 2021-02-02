@@ -40,6 +40,7 @@ jobs:
         run: tahoe create-node --hostname=localhost:6666 --webport=tcp:4567:interface=127.0.0.1 --shares-happy=1 --shares-needed=1 --shares-total=1 --introducer=`cat .introducer/private/introducer.furl` .node
       - name: Start node
         run: tahoe start .node
+      - run: cat .node/tahoe.cfg
       - run: npm install
       - run: npm run build --if-present
       - run: npm test
