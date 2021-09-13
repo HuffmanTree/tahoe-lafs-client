@@ -1,9 +1,12 @@
 {
   "name": "tahoe-lafs-client",
-  "version": "2.0.0-beta.0",
+  "version": "2.0.0-beta.1",
   "description": "Javascript client for the Tahoe-LAFS Web API written in Typescript",
-  "main": "./dist/index.js",
-  "types": "./src/index.ts",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "mocha -r ts-node/register -t 300000 test/**/*-test.ts",
     "build": "rm -rf dist && tsc -p .",
