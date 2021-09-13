@@ -34,13 +34,23 @@ export enum Format {
   SDMF = 'SDMF'
 }
 
+export type CapabilityMetadata = {
+  ctime: string,
+  mtime: string,
+  tahoe: {
+    linkcrtime: string,
+    linkmotime: string
+  }
+}
+
 export type FilecapInfo = {
   rw_uri?: string,
   ro_uri: string,
   verify_uri?: string,
   size?: number,
   mutable?: boolean,
-  format?: Format
+  format?: Format,
+  metadata?: CapabilityMetadata
 };
 
 export type DircapInfo = {
@@ -49,7 +59,8 @@ export type DircapInfo = {
   verify_uri?: string,
   mutable?: boolean,
   format?: Format,
-  children?: Record<string, [string, FilecapInfo | DircapInfo]>
+  children?: Record<string, ['filenode', FilecapInfo] | ['dirnode', DircapInfo]>,
+  metadata?: CapabilityMetadata
 };
 
 /**
@@ -72,7 +83,7 @@ export default class TahoeLAFSClient {
     return this._client.get(url);
   }
 
-  readCapabilityInfo(capability: string): Promise<AxiosResponse<[string, FilecapInfo | DircapInfo]>> {
+  readCapabilityInfo(capability: string): Promise<AxiosResponse<['filenode', FilecapInfo] | ['dirnode', DircapInfo]>> {
     const url = `/uri/${capability}?t=json`;
 
     return this._client.get(url);
@@ -111,16 +122,22 @@ export default class TahoeLAFSClient {
     return this._client.put(url, form);
   }
 
-  createDirectory(format: Format.SDMF | Format.MDMF = Format.SDMF, children: Record<string, [string, FilecapInfo | DircapInfo]> = {}): Promise<AxiosResponse<string>> {
+  createDirectory(format: Format.SDMF | Format.MDMF = Format.SDMF, children: Record<string, ['filenode', FilecapInfo] | ['dirnode', DircapInfo]> = {}): Promise<AxiosResponse<string>> {
     const url = `/uri?t=mkdir-with-children&format=${format}`;
 
     return this._client.post(url, children);
   }
 
-  createImmutableDirectory(children: Record<string, [string, FilecapInfo | DircapInfo]> = {}): Promise<AxiosResponse<string>> {
+  createImmutableDirectory(children: Record<string, ['filenode', FilecapInfo] | ['dirnode', DircapInfo]> = {}): Promise<AxiosResponse<string>> {
     const url = '/uri?t=mkdir-immutable';
 
     return this._client.post(url, children);
+  }
+
+  unlinkName(dircap: string, name: string, subdirs?: Array<string>): Promise<AxiosResponse<string>> {
+    const url = `/uri/${buildPath(dircap, subdirs, name)}`;
+
+    return this._client.delete(url);
   }
 
 }
