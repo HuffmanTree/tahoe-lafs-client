@@ -1,11 +1,16 @@
 {
+  "ts-node": {
+    "files": true
+  },
   "compileOnSave": true,
   "compilerOptions": {
+    "pretty": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "strict": true,
     "outDir": "./dist",
     "sourceMap": true,
+    "declaration": true,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -13,23 +18,23 @@
     "noImplicitAny": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "target": "es2016",
+    "target": "es6",
     "module": "commonjs",
     "typeRoots": [
-      "./node_modules/@types/",
-      "./types/"
+      "node_modules/@types",
+      "types"
     ],
     "lib": [
-      "es2017"
+      "es2017",
+      "es2015",
+      "dom"
     ]
   },
   "include": [
-    "./src/**/*.ts",
-    "./src/**/*.json",
-    "./types/*.d.ts"
+    "src/**/*.ts",
+    "types/*.d.ts"
   ],
   "exclude": [
-    "./node_modules/",
-    "./dist/"
+    "node_modules"
   ]
 }
