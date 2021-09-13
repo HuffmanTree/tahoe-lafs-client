@@ -20,19 +20,13 @@ describe('TahoeLAFSClient (MDMF)', function () {
   let filecapMDMF: string;
   let dircapMDMF: string;
 
-  before(function () {
+  before(async function () {
 
-    return http.put<string>(`/uri?format=${Format.MDMF}`, form1)
-      .then(response => {
-	filecapMDMF = response.data;
+    const r1 = await http.put<string>(`/uri?format=${Format.MDMF}`, form1);
+    filecapMDMF = r1.data;
 
-	return http.post<string>(`/uri?t=mkdir-with-children&format=${Format.MDMF}`, { 'foo.txt': ['filenode', { ro_uri: filecapMDMF }] })
-      })
-      .then(response => {
-	dircapMDMF = response.data;
-
-	return Promise.resolve();
-      });
+    const r2 = await http.post<string>(`/uri?t=mkdir-with-children&format=${Format.MDMF}`, { 'foo.txt': ['filenode', { ro_uri: filecapMDMF }] });
+    dircapMDMF = r2.data;
 
   });
 
@@ -43,12 +37,12 @@ describe('TahoeLAFSClient (MDMF)', function () {
       const response = await client.readFilecap(filecapMDMF);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.a('string');
+        .to.have.property('data').and
+        .to.be.a('string');
 
     });
 
@@ -70,12 +64,12 @@ describe('TahoeLAFSClient (MDMF)', function () {
       const response = await client.readFilename(dircapMDMF, 'foo.txt');
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.a('string');
+        .to.have.property('data').and
+        .to.be.a('string');
 
     });
 
@@ -96,45 +90,45 @@ describe('TahoeLAFSClient (MDMF)', function () {
       const response = await client.readCapabilityInfo(filecapMDMF);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.instanceOf(Array).and
-	.to.have.lengthOf(2);
+        .to.have.property('data').and
+        .to.be.instanceOf(Array).and
+        .to.have.lengthOf(2);
 
       const [flag, info] = response.data;
 
       expect(flag)
-	.to.be.a('string').and.
-	to.equal('filenode');
+        .to.be.a('string').and.
+        to.equal('filenode');
       expect(info)
-	.to.be.an('object');
+        .to.be.an('object');
       expect(info)
-	.to.have.property('rw_uri').and
-	.to.be.a('string').and.
-	to.startWith('URI:MDMF:');
+        .to.have.property('rw_uri').and
+        .to.be.a('string').and.
+        to.startWith('URI:MDMF:');
       expect(info)
-	.to.have.property('ro_uri').and
-	.to.be.a('string').and
-	.to.startWith('URI:MDMF-RO:');
+        .to.have.property('ro_uri').and
+        .to.be.a('string').and
+        .to.startWith('URI:MDMF-RO:');
       expect(info)
-	.to.have.property('verify_uri').and
-	.to.be.a('string').and
-	.to.startWith('URI:MDMF-Verifier:');
+        .to.have.property('verify_uri').and
+        .to.be.a('string').and
+        .to.startWith('URI:MDMF-Verifier:');
       expect(info)
-	.to.have.property('size').and
-	.to.be.a('number').and
-	.to.be.greaterThan(0);
+        .to.have.property('size').and
+        .to.be.a('number').and
+        .to.be.greaterThan(0);
       expect(info)
-	.to.have.property('mutable').and
-	.to.be.a('boolean').and
-	.to.be.true;
+        .to.have.property('mutable').and
+        .to.be.a('boolean').and
+        .to.be.true;
       expect(info)
-	.to.have.property('format').and
-	.to.be.a('string').and
-	.to.equal(Format.MDMF);
+        .to.have.property('format').and
+        .to.be.a('string').and
+        .to.equal(Format.MDMF);
 
     });
 
@@ -143,40 +137,40 @@ describe('TahoeLAFSClient (MDMF)', function () {
       const response = await client.readCapabilityInfo(dircapMDMF);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.instanceOf(Array).and
-	.to.have.lengthOf(2);
+        .to.have.property('data').and
+        .to.be.instanceOf(Array).and
+        .to.have.lengthOf(2);
 
       const [flag, info] = response.data;
 
       expect(flag)
-	.to.be.a('string').and.
-	to.equal('dirnode');
+        .to.be.a('string').and.
+        to.equal('dirnode');
       expect(info)
-	.to.be.an('object');
+        .to.be.an('object');
       expect(info)
-	.to.have.property('rw_uri')
-	.and.to.be.a('string').and
-	.to.startWith('URI:DIR2:');
+        .to.have.property('rw_uri')
+        .and.to.be.a('string').and
+        .to.startWith('URI:DIR2:');
       expect(info)
-	.to.have.property('ro_uri').and
-	.to.be.a('string').and
-	.to.startWith('URI:DIR2-RO:');
+        .to.have.property('ro_uri').and
+        .to.be.a('string').and
+        .to.startWith('URI:DIR2-RO:');
       expect(info)
-	.to.have.property('verify_uri').and
-	.to.be.a('string').and
-	.to.startWith('URI:DIR2-Verifier:');
+        .to.have.property('verify_uri').and
+        .to.be.a('string').and
+        .to.startWith('URI:DIR2-Verifier:');
       expect(info)
-	.to.have.property('mutable').and
-	.to.be.a('boolean').and
-	.to.be.true;
+        .to.have.property('mutable').and
+        .to.be.a('boolean').and
+        .to.be.true;
       expect(info)
-	.to.have.property('children').and
-	.to.be.an('object');
+        .to.have.property('children').and
+        .to.be.an('object');
 
     });
 
@@ -186,22 +180,22 @@ describe('TahoeLAFSClient (MDMF)', function () {
       const response = await client.readCapabilityInfo(capability);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.instanceOf(Array).and
-	.to.have.lengthOf(2);
+        .to.have.property('data').and
+        .to.be.instanceOf(Array).and
+        .to.have.lengthOf(2);
 
       const [flag, info] = response.data;
 
       expect(flag)
-	.to.be.a('string').and.
-	to.equal('unknown');
+        .to.be.a('string').and.
+        to.equal('unknown');
       expect(info)
-	.to.be.an('object').and
-	.to.be.empty;
+        .to.be.an('object').and
+        .to.be.empty;
 
     });
 
@@ -214,13 +208,13 @@ describe('TahoeLAFSClient (MDMF)', function () {
       const response = await client.uploadFile(content1, Format.MDMF);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.a('string').and
-	.to.startWith('URI:MDMF:');
+        .to.have.property('data').and
+        .to.be.a('string').and
+        .to.startWith('URI:MDMF:');
 
     });
 
@@ -233,13 +227,13 @@ describe('TahoeLAFSClient (MDMF)', function () {
       const response = await client.uploadFilecap(filecapMDMF, content1, Format.MDMF);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.a('string').and
-	.to.startWith('URI:MDMF:');
+        .to.have.property('data').and
+        .to.be.a('string').and
+        .to.startWith('URI:MDMF:');
 
     });
 
@@ -252,13 +246,13 @@ describe('TahoeLAFSClient (MDMF)', function () {
       const response = await client.uploadFilename(dircapMDMF, 'hello.txt', content1, Format.CHK);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(201);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(201);
       expect(response)
-	.to.have.property('data').and
-	.to.be.a('string').and
-	.to.startWith('URI:CHK:');
+        .to.have.property('data').and
+        .to.be.a('string').and
+        .to.startWith('URI:CHK:');
 
     });
 
@@ -267,13 +261,13 @@ describe('TahoeLAFSClient (MDMF)', function () {
       const response = await client.uploadFilename(dircapMDMF, 'hello.txt', content1, Format.CHK);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.a('string').and
-	.to.startWith('URI:CHK:');
+        .to.have.property('data').and
+        .to.be.a('string').and
+        .to.startWith('URI:CHK:');
 
     });
 
@@ -282,13 +276,13 @@ describe('TahoeLAFSClient (MDMF)', function () {
       const response = await client.uploadFilename(dircapMDMF, 'world.txt', content1, Format.SDMF);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(201);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(201);
       expect(response)
-	.to.have.property('data').and
-	.to.be.a('string').and
-	.to.startWith('URI:SSK:');
+        .to.have.property('data').and
+        .to.be.a('string').and
+        .to.startWith('URI:SSK:');
 
     });
 
@@ -297,13 +291,13 @@ describe('TahoeLAFSClient (MDMF)', function () {
       const response = await client.uploadFilename(dircapMDMF, '!!.txt', content1, Format.MDMF);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(201);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(201);
       expect(response)
-	.to.have.property('data').and
-	.to.be.a('string').and
-	.to.startWith('URI:MDMF:');
+        .to.have.property('data').and
+        .to.be.a('string').and
+        .to.startWith('URI:MDMF:');
 
     });
 
@@ -312,13 +306,13 @@ describe('TahoeLAFSClient (MDMF)', function () {
       const response = await client.uploadFilename(dircapMDMF, 'world.txt', content1, Format.SDMF);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.a('string').and
-	.to.startWith('URI:SSK:');
+        .to.have.property('data').and
+        .to.be.a('string').and
+        .to.startWith('URI:SSK:');
 
     });
 
@@ -327,13 +321,13 @@ describe('TahoeLAFSClient (MDMF)', function () {
       const response = await client.uploadFilename(dircapMDMF, '!!.txt', content1, Format.MDMF);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.a('string').and
-	.to.startWith('URI:MDMF:');
+        .to.have.property('data').and
+        .to.be.a('string').and
+        .to.startWith('URI:MDMF:');
 
     });
 
@@ -346,33 +340,59 @@ describe('TahoeLAFSClient (MDMF)', function () {
       const response = await client.createDirectory(Format.MDMF);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.a('string').and
-	.to.startWith('URI:DIR2:');
+        .to.have.property('data').and
+        .to.be.a('string').and
+        .to.startWith('URI:DIR2:');
 
     });
 
     it('should successfully create a directory with contents', async function () {
 
-      const filenode: [string, FilecapInfo] = ['filenode', { ro_uri: filecapMDMF }];
-      const dirnode: [string, DircapInfo] = ['dirnode', { ro_uri: dircapMDMF }];
+      const filenode: ['filenode', FilecapInfo] = ['filenode', { ro_uri: filecapMDMF }];
+      const dirnode: ['dirnode', DircapInfo] = ['dirnode', { ro_uri: dircapMDMF }];
       const response = await client.createDirectory(Format.MDMF, {
-	'file1.txt': filenode,
-	'folder1': dirnode
+        'file1.txt': filenode,
+        'folder1': dirnode
       });
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.a('string').and
-	.to.startWith('URI:DIR2:');
+        .to.have.property('data').and
+        .to.be.a('string').and
+        .to.startWith('URI:DIR2:');
+
+    });
+
+  });
+
+  describe('unlinkName', function () {
+
+    it('should successfully unlink an existing filename', async function () {
+
+      const response = await client.unlinkName(dircapMDMF, 'foo.txt');
+
+      expect(response)
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
+      expect(response)
+        .to.have.property('data').and
+        .to.be.a('string');
+
+    });
+
+    it('should fail unlinking a non existing filename', async function () {
+
+      const promise = client.unlinkName(dircapMDMF, 'bar.txt');
+
+      await expect(promise).to.be.rejectedWith(/^Request failed with status code 404$/);
 
     });
 

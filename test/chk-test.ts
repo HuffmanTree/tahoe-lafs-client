@@ -20,19 +20,13 @@ describe('TahoeLAFSClient (CHK)', function () {
   let filecapCHK: string;
   let dircapCHK: string;
 
-  before(function () {
+  before(async function () {
 
-    return http.put<string>(`/uri?format=${Format.CHK}`, form1)
-      .then(response => {
-	filecapCHK = response.data;
+    const r1 = await http.put<string>(`/uri?format=${Format.CHK}`, form1);
+    filecapCHK = r1.data;
 
-	return http.post<string>('/uri?t=mkdir-immutable', { 'foo.txt': ['filenode', { ro_uri: filecapCHK }] })
-      })
-      .then(response => {
-	dircapCHK = response.data;
-
-	return Promise.resolve();
-      });
+    const r2 = await http.post<string>('/uri?t=mkdir-immutable', { 'foo.txt': ['filenode', { ro_uri: filecapCHK }] });
+    dircapCHK = r2.data;
 
   });
 
@@ -43,12 +37,12 @@ describe('TahoeLAFSClient (CHK)', function () {
       const response = await client.readFilecap(filecapCHK);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.a('string');
+        .to.have.property('data').and
+        .to.be.a('string');
 
     });
 
@@ -79,12 +73,12 @@ describe('TahoeLAFSClient (CHK)', function () {
       const response = await client.readFilename(dircapCHK, 'foo.txt');
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.a('string');
+        .to.have.property('data').and
+        .to.be.a('string');
 
     });
 
@@ -105,43 +99,43 @@ describe('TahoeLAFSClient (CHK)', function () {
       const response = await client.readCapabilityInfo(filecapCHK);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.instanceOf(Array).and
-	.to.have.lengthOf(2);
+        .to.have.property('data').and
+        .to.be.instanceOf(Array).and
+        .to.have.lengthOf(2);
 
       const [flag, info] = response.data;
 
       expect(flag)
-	.to.be.a('string').and.
-	to.equal('filenode');
+        .to.be.a('string').and.
+        to.equal('filenode');
       expect(info)
-	.to.be.an('object');
+        .to.be.an('object');
       expect(info)
-	.to.not.have.property('rw_uri');
+        .to.not.have.property('rw_uri');
       expect(info)
-	.to.have.property('ro_uri').and
-	.to.be.a('string').and
-	.to.startWith('URI:CHK:');
+        .to.have.property('ro_uri').and
+        .to.be.a('string').and
+        .to.startWith('URI:CHK:');
       expect(info)
-	.to.have.property('verify_uri').and
-	.to.be.a('string').and
-	.to.startWith('URI:CHK-Verifier:');
+        .to.have.property('verify_uri').and
+        .to.be.a('string').and
+        .to.startWith('URI:CHK-Verifier:');
       expect(info)
-	.to.have.property('size').and
-	.to.be.a('number').and
-	.to.be.greaterThan(0);
+        .to.have.property('size').and
+        .to.be.a('number').and
+        .to.be.greaterThan(0);
       expect(info)
-	.to.have.property('mutable').and
-	.to.be.a('boolean').and
-	.to.be.false;
+        .to.have.property('mutable').and
+        .to.be.a('boolean').and
+        .to.be.false;
       expect(info)
-	.to.have.property('format').and
-	.to.be.a('string').and
-	.to.equal(Format.CHK);
+        .to.have.property('format').and
+        .to.be.a('string').and
+        .to.equal(Format.CHK);
 
     });
 
@@ -150,38 +144,38 @@ describe('TahoeLAFSClient (CHK)', function () {
       const response = await client.readCapabilityInfo(dircapCHK);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.instanceOf(Array).and
-	.to.have.lengthOf(2);
+        .to.have.property('data').and
+        .to.be.instanceOf(Array).and
+        .to.have.lengthOf(2);
 
       const [flag, info] = response.data;
 
       expect(flag)
-	.to.be.a('string').and.
-	to.equal('dirnode');
+        .to.be.a('string').and.
+        to.equal('dirnode');
       expect(info)
-	.to.be.an('object');
+        .to.be.an('object');
       expect(info)
-	.to.not.have.property('rw_uri');
+        .to.not.have.property('rw_uri');
       expect(info)
-	.to.have.property('ro_uri').and
-	.to.be.a('string').and
-	.to.startWith('URI:DIR2-CHK:');
+        .to.have.property('ro_uri').and
+        .to.be.a('string').and
+        .to.startWith('URI:DIR2-CHK:');
       expect(info)
-	.to.have.property('verify_uri').and
-	.to.be.a('string').and
-	.to.startWith('URI:DIR2-CHK-Verifier:');
+        .to.have.property('verify_uri').and
+        .to.be.a('string').and
+        .to.startWith('URI:DIR2-CHK-Verifier:');
       expect(info)
-	.to.have.property('mutable').and
-	.to.be.a('boolean').and
-	.to.be.false;
+        .to.have.property('mutable').and
+        .to.be.a('boolean').and
+        .to.be.false;
       expect(info)
-	.to.have.property('children').and
-	.to.be.an('object');
+        .to.have.property('children').and
+        .to.be.an('object');
 
     });
 
@@ -191,22 +185,22 @@ describe('TahoeLAFSClient (CHK)', function () {
       const response = await client.readCapabilityInfo(capability);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.instanceOf(Array).and
-	.to.have.lengthOf(2);
+        .to.have.property('data').and
+        .to.be.instanceOf(Array).and
+        .to.have.lengthOf(2);
 
       const [flag, info] = response.data;
 
       expect(flag)
-	.to.be.a('string').and.
-	to.equal('unknown');
+        .to.be.a('string').and.
+        to.equal('unknown');
       expect(info)
-	.to.be.an('object').and
-	.to.be.empty;
+        .to.be.an('object').and
+        .to.be.empty;
 
     });
 
@@ -219,13 +213,13 @@ describe('TahoeLAFSClient (CHK)', function () {
       const response = await client.uploadFile(content1, Format.CHK);
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.a('string').and
-	.to.startWith('URI:CHK:');
+        .to.have.property('data').and
+        .to.be.a('string').and
+        .to.startWith('URI:CHK:');
 
     });
 
@@ -262,33 +256,45 @@ describe('TahoeLAFSClient (CHK)', function () {
       const response = await client.createImmutableDirectory();
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.a('string').and
-	.to.startWith('URI:DIR2-LIT:');
+        .to.have.property('data').and
+        .to.be.a('string').and
+        .to.startWith('URI:DIR2-LIT:');
 
     });
 
     it('should successfully create a directory with contents', async function () {
 
-      const filenode: [string, FilecapInfo] = ['filenode', { ro_uri: filecapCHK }];
-      const dirnode: [string, DircapInfo] = ['dirnode', { ro_uri: dircapCHK }];
+      const filenode: ['filenode', FilecapInfo] = ['filenode', { ro_uri: filecapCHK }];
+      const dirnode: ['dirnode', DircapInfo] = ['dirnode', { ro_uri: dircapCHK }];
       const response = await client.createImmutableDirectory({
-	'file1.txt': filenode,
-	'folder1': dirnode
+        'file1.txt': filenode,
+        'folder1': dirnode
       });
 
       expect(response)
-	.to.have.property('status').and
-	.to.be.a('number').and
-	.to.equal(200);
+        .to.have.property('status').and
+        .to.be.a('number').and
+        .to.equal(200);
       expect(response)
-	.to.have.property('data').and
-	.to.be.a('string').and
-	.to.startWith('URI:DIR2-CHK:');
+        .to.have.property('data').and
+        .to.be.a('string').and
+        .to.startWith('URI:DIR2-CHK:');
+
+    });
+
+  });
+
+  describe('unlinkName', function () {
+
+    it('should fail unlinking a filename on a immutable filesystem', async function () {
+
+      const promise = client.unlinkName(dircapCHK, 'foo.txt');
+
+      await expect(promise).to.be.rejectedWith(/^Request failed with status code 500$/);
 
     });
 
